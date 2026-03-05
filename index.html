@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Canada Tax Calculator 2026</title>
+
+<style>
+
+body{
+font-family:Arial,Helvetica,sans-serif;
+background:#0f172a;
+color:white;
+margin:0;
+padding:0;
+}
+
+.container{
+max-width:900px;
+margin:auto;
+padding:30px;
+}
+
+h1{
+text-align:center;
+}
+
+.card{
+background:#1e293b;
+padding:20px;
+border-radius:10px;
+margin-bottom:20px;
+}
+
+label{
+display:block;
+margin-top:10px;
+font-size:14px;
+}
+
+input,select{
+width:100%;
+padding:10px;
+margin-top:5px;
+border-radius:5px;
+border:none;
+}
+
+button{
+margin-top:20px;
+padding:12px;
+width:100%;
+background:#3b82f6;
+border:none;
+color:white;
+font-size:16px;
+border-radius:6px;
+cursor:pointer;
+}
+
+button:hover{
+background:#2563eb;
+}
+
+.result{
+background:#020617;
+padding:20px;
+border-radius:10px;
+margin-top:20px;
+}
+
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:20px;
+}
+
+@media(max-width:700px){
+.grid{
+grid-template-columns:1fr;
+}
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Canada Tax Calculator</h1>
+
+<div class="card">
+
+<div class="grid">
+
+<div>
+<label>Province</label>
+<select id="province">
+<option value="ON">Ontario</option>
+<option value="BC">British Columbia</option>
+<option value="AB">Alberta</option>
+</select>
+</div>
+
+<div>
+<label>RRSP Contribution</label>
+<input id="rrsp" type="number">
+</div>
+
+<div>
+<label>Job 1 Income (T4 Line 14)</label>
+<input id="job1" type="number">
+</div>
+
+<div>
+<label>Job 2 Income</label>
+<input id="job2" type="number">
+</div>
+
+<div>
+<label>Job 3 Income</label>
+<input id="job3" type="number">
+</div>
+
+<div>
+<label>Uber Gross Income</label>
+<input id="uber" type="number">
+</div>
+
+<div>
+<label>Uber Expenses</label>
+<input id="uberexp" type="number">
+</div>
+
+<div>
+<label>Other Deductions</label>
+<input id="other" type="number">
+</div>
+
+</div>
+
+<button onclick="calculate()">Calculate Tax</button>
+
+</div>
+
+<div class="result" id="result"></div>
+
+</div>
+
+<script>
+
+function num(v){
+return Number(v)||0
+}
+
+function calcBrackets(income,brackets){
+
+let tax=0
+let prev=0
+
+for(let i=0;i<brackets.length;i++){
+
+let limit=brackets[i].limit
+let rate=brackets[i].rate
+
+if(income<=limit){
+
+tax+=(income-prev)*rate
+break
+
+}else{
+
+tax+=(limit-prev)*rate
+prev=limit
+
+}
+
+}
+
+return tax
+
+}
+
+function calculate(){
+
+let province=document.getElementById("province").value
+
+let job1=num(document.getElementById("job1").value)
+let job2=num(document.getElementById("job2").value)
+let job3=num(document.getElementById("job3").value)
+
+let uber=num(document.getElementById("uber").value)
+let uberexp=num(document.getElementById("uberexp").value)
+
+let rrsp=num(document.getElementById("rrsp").value)
+let other=num(document.getElementById("other").value)
+
+let uberNet=Math.max(0,uber-uberexp)
+
+let total=job1+job2+job3+uberNet
+
+let taxable=Math.max(0,total-rrsp-other-15705)
+
+let federalBrackets=[
+{limit:58523,rate:0.14},
+{limit:117045,rate:0.205},
+{limit:181440,rate:0.26},
+{limit:258482,rate:0.29},
+{limit:99999999,rate:0.33}
+]
+
+let provBrackets={
+
+ON:[
+{limit:51446,rate:0.0505},
+{limit:102894,rate:0.0915},
+{limit:150000,rate:0.1116},
+{limit:220000,rate:0.1216},
+{limit:99999999,rate:0.1316}
+],
+
+BC:[
+{limit:45654,rate:0.0506},
+{limit:91310,rate:0.077},
+{limit:104835,rate:0.105},
+{limit:127299,rate:0.1229},
+{limit:99999999,rate:0.147}
+],
+
+AB:[
+{limit:148269,rate:0.10},
+{limit:177922,rate:0.12},
+{limit:237230,rate:0.13},
+{limit:355845,rate:0.14},
+{limit:99999999,rate:0.15}
+]
+
+}
+
+let fedTax=calcBrackets(taxable,federalBrackets)-1400
+if(fedTax<0)fedTax=0
+
+let provTax=calcBrackets(taxable,provBrackets[province])
+
+let cpp=Math.max(0,(total-3500))*0.0595
+let ei=Math.min(total,68900)*0.0166
+let selfcpp=uberNet*0.119
+
+let totalTax=fedTax+provTax+cpp+ei+selfcpp
+let net=total-totalTax
+
+let monthly=net/12
+let biweekly=net/26
+
+document.getElementById("result").innerHTML=
+
+`
+<h2>Tax Summary</h2>
+
+<p>Total Income: $${total.toFixed(2)}</p>
+<p>Taxable Income: $${taxable.toFixed(2)}</p>
+
+<hr>
+
+<p>Federal Tax: $${fedTax.toFixed(2)}</p>
+<p>Provincial Tax: $${provTax.toFixed(2)}</p>
+
+<p>CPP: $${cpp.toFixed(2)}</p>
+<p>EI: $${ei.toFixed(2)}</p>
+
+<p>Self-employed CPP: $${selfcpp.toFixed(2)}</p>
+
+<hr>
+
+<h3>Total Tax: $${totalTax.toFixed(2)}</h3>
+<h3>Net Income: $${net.toFixed(2)}</h3>
+
+<hr>
+
+<p>Monthly Take-home: $${monthly.toFixed(2)}</p>
+<p>Biweekly Paycheck: $${biweekly.toFixed(2)}</p>
+
+<p>Recommended Uber tax reserve (28%): $${(uberNet*0.28).toFixed(2)}</p>
+`
+
+}
+
+</script>
+
+</body>
+</html>
