@@ -1,158 +1,187 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Canada Tax Calculator 2026</title>
-<style>
-body{font-family:Arial,sans-serif;background:#0f172a;color:white;margin:0;padding:0}
-.container{max-width:900px;margin:auto;padding:30px}
-h1{text-align:center}
-.card{background:#1e293b;padding:20px;border-radius:10px;margin-bottom:20px}
-label{display:block;margin-top:10px;font-size:14px}
-input,select{width:100%;padding:10px;margin-top:5px;border-radius:5px;border:none}
-button{margin-top:20px;padding:12px;width:100%;background:#3b82f6;border:none;color:white;font-size:16px;border-radius:6px;cursor:pointer}
-button:hover{background:#2563eb}
-.result{background:#020617;padding:20px;border-radius:10px;margin-top:20px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-@media(max-width:700px){.grid{grid-template-columns:1fr}}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Canada Tax Engine 2026</title>
+    <style>
+        :root {
+            --bg: #0f172a; --card: #1e293b; --accent: #3b82f6;
+            --success: #10b981; --error: #ef4444; --text: #f8fafc;
+        }
+        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; line-height: 1.5; }
+        .container { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
+        header { text-align: center; margin-bottom: 40px; }
+        h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -0.025em; margin-bottom: 10px; }
+        .grid-layout { display: grid; grid-template-columns: 1.5fr 1fr; gap: 30px; }
+        .card { background: var(--card); padding: 24px; border-radius: 12px; border: 1px solid #334155; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        .section-title { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; margin: 20px 0 10px; border-bottom: 1px solid #334155; padding-bottom: 5px; }
+        .input-group { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        label { display: block; font-size: 0.85rem; margin-bottom: 5px; color: #cbd5e1; }
+        input, select { width: 100%; padding: 10px; background: #0f172a; border: 1px solid #475569; border-radius: 6px; color: white; box-sizing: border-box; }
+        input:focus { outline: 2px solid var(--accent); border-color: transparent; }
+        button { width: 100%; padding: 16px; background: var(--accent); color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s; margin-top: 20px; }
+        button:hover { background: #2563eb; transform: translateY(-1px); }
+        
+        /* Results Styling */
+        .res-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #334155; font-size: 0.95rem; }
+        .res-total { font-size: 1.25rem; font-weight: 700; margin-top: 15px; padding-top: 15px; border-top: 2px solid #475569; }
+        .refund { color: var(--success); }
+        .owing { color: var(--error); }
+        .badge { font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; background: #334155; margin-left: 5px; }
+
+        @media (max-width: 850px) { .grid-layout { grid-template-columns: 1fr; } }
+    </style>
 </head>
 <body>
 
 <div class="container">
-<h1>Canada Tax Calculator 2026</h1>
-<div class="card">
-<div class="grid">
-<div>
-<label>Province</label>
-<select id="province">
-<option value="ON">Ontario</option>
-<option value="BC">British Columbia</option>
-<option value="AB">Alberta</option>
-</select>
-</div>
+    <header>
+        <h1>Canada Tax Engine <span style="color:var(--accent)">2026</span></h1>
+        <p>Advanced liability & refund estimator for multi-income earners</p>
+    </header>
 
-<div>
-<label>RRSP Contribution</label>
-<input id="rrsp" type="number">
-</div>
+    <div class="grid-layout">
+        <div class="card">
+            <div class="input-group">
+                <div>
+                    <label>Province of Residence</label>
+                    <select id="province">
+                        <option value="ON">Ontario</option>
+                        <option value="BC">British Columbia</option>
+                        <option value="AB">Alberta</option>
+                    </select>
+                </div>
+                <div>
+                    <label>RRSP Contributions ($)</label>
+                    <input id="rrsp" type="number" placeholder="0">
+                </div>
+            </div>
 
-<h3>Job 1</h3>
-<div><label>Income (T4 Line 14)</label><input id="job1_income" type="number"></div>
-<div><label>Tax Paid (T4 Line 22)</label><input id="job1_tax" type="number"></div>
-<div><label>CPP Paid (T4 Line 16)</label><input id="job1_cpp" type="number"></div>
-<div><label>EI Paid (T4 Line 18)</label><input id="job1_ei" type="number"></div>
-<div><label>Union Dues (T4 Line 44)</label><input id="job1_union" type="number"></div>
+            <div id="job-container">
+                </div>
 
-<h3>Job 2</h3>
-<div><label>Income</label><input id="job2_income" type="number"></div>
-<div><label>Tax Paid</label><input id="job2_tax" type="number"></div>
-<div><label>CPP Paid</label><input id="job2_cpp" type="number"></div>
-<div><label>EI Paid</label><input id="job2_ei" type="number"></div>
-<div><label>Union Dues</label><input id="job2_union" type="number"></div>
+            <div class="section-title">Self-Employment / Gig Work</div>
+            <div class="input-group">
+                <div><label>Gross Revenue</label><input id="uber_inc" type="number" placeholder="0"></div>
+                <div><label>Total Expenses</label><input id="uber_exp" type="number" placeholder="0"></div>
+            </div>
+            
+            <button onclick="calculate()">Calculate Refund / Balance Owing</button>
+        </div>
 
-<h3>Job 3</h3>
-<div><label>Income</label><input id="job3_income" type="number"></div>
-<div><label>Tax Paid</label><input id="job3_tax" type="number"></div>
-<div><label>CPP Paid</label><input id="job3_cpp" type="number"></div>
-<div><label>EI Paid</label><input id="job3_ei" type="number"></div>
-<div><label>Union Dues</label><input id="job3_union" type="number"></div>
-
-<h3>Uber / Self-Employment</h3>
-<div><label>Gross Income</label><input id="uber_income" type="number"></div>
-<div><label>Expenses</label><input id="uber_expense" type="number"></div>
-
-<div><label>Other Deductions</label><input id="other" type="number"></div>
-</div>
-<button onclick="calculate()">Calculate Tax</button>
-</div>
-
-<div class="result" id="result"></div>
+        <div id="result-panel" class="card" style="display:none">
+            <h2 style="margin-top:0">Tax Summary</h2>
+            <div id="summary-content"></div>
+        </div>
+    </div>
 </div>
 
 <script>
-function num(v){return Number(v)||0}
-
-function calcBrackets(income,brackets){
-let tax=0,prev=0
-for(let i=0;i<brackets.length;i++){
-let limit=brackets[i].limit,rate=brackets[i].rate
-if(income<=limit){tax+=(income-prev)*rate;break}else{tax+=(limit-prev)*rate;prev=limit}}
-return tax
+// UI Generation
+const jobContainer = document.getElementById('job-container');
+for(let i=1; i<=3; i++) {
+    jobContainer.innerHTML += `
+        <div class="section-title">T4 Employment - Job ${i}</div>
+        <div class="input-group">
+            <div><label>Income (Box 14)</label><input id="j${i}_inc" type="number" placeholder="0"></div>
+            <div><label>Income Tax (Box 22)</label><input id="j${i}_tax" type="number" placeholder="0"></div>
+        </div>
+        <div class="input-group">
+            <div><label>CPP Paid (Box 16)</label><input id="j${i}_cpp" type="number" placeholder="0"></div>
+            <div><label>EI Paid (Box 18)</label><input id="j${i}_ei" type="number" placeholder="0"></div>
+        </div>
+    `;
 }
 
-function calculate(){
-let province=document.getElementById("province").value
-let rrsp=num(document.getElementById("rrsp").value)
-let other=num(document.getElementById("other").value)
-
-let jobs=[]
-for(let i=1;i<=3;i++){
-jobs.push({
-income:num(document.getElementById(`job${i}_income`).value),
-taxPaid:num(document.getElementById(`job${i}_tax`).value),
-cppPaid:num(document.getElementById(`job${i}_cpp`).value),
-eiPaid:num(document.getElementById(`job${i}_ei`).value),
-unionDues:num(document.getElementById(`job${i}_union`).value)
-})
+function calcTax(taxable, brackets) {
+    let tax = 0, prevLimit = 0;
+    for (const b of brackets) {
+        if (taxable > b.limit) {
+            tax += (b.limit - prevLimit) * b.rate;
+            prevLimit = b.limit;
+        } else {
+            tax += (taxable - prevLimit) * b.rate;
+            break;
+        }
+    }
+    return tax;
 }
 
-let uberIncome=num(document.getElementById("uber_income").value)
-let uberExp=num(document.getElementById("uber_expense").value)
-let uberNet=Math.max(0,uberIncome-uberExp)
+function calculate() {
+    const val = (id) => Number(document.getElementById(id).value) || 0;
+    const prov = document.getElementById("province").value;
 
-let totalIncome=jobs.reduce((a,j)=>a+j.income,0)+uberNet
+    // 1. Income Consolidation
+    const t4Inc = val('j1_inc') + val('j2_inc') + val('j3_inc');
+    const selfInc = Math.max(0, val('uber_inc') - val('uber_exp'));
+    const totalIncome = t4Inc + selfInc;
+    
+    // 2. Deductions
+    const taxableIncome = Math.max(0, totalIncome - val('rrsp'));
 
-let totalTaxPaid=jobs.reduce((a,j)=>a+j.taxPaid,0)
-let totalCppPaid=jobs.reduce((a,j)=>a+j.cppPaid,0)
-let totalEiPaid=jobs.reduce((a,j)=>a+j.eiPaid,0)
-let totalUnionDues=jobs.reduce((a,j)=>a+j.unionDues,0)
+    // 3. Paid Amounts (Credits)
+    const totalTaxPaid = val('j1_tax') + val('j2_tax') + val('j3_tax');
+    const totalCppPaid = val('j1_cpp') + val('j2_cpp') + val('j3_cpp');
+    const totalEiPaid = val('j1_ei') + val('j2_ei') + val('j3_ei');
 
-let taxable=Math.max(0,totalIncome-rrsp-other-15705)
+    // 4. Federal Tax (2026 Estimates)
+    const fedBrackets = [
+        {limit: 58523, rate: 0.15}, {limit: 117045, rate: 0.205}, 
+        {limit: 181440, rate: 0.26}, {limit: 258482, rate: 0.29}, {limit: Infinity, rate: 0.33}
+    ];
+    let grossFedTax = calcTax(taxableIncome, fedBrackets);
+    const bpaCredit = 16200 * 0.15; // Estimated 2026 BPA Credit
+    const fedTax = Math.max(0, grossFedTax - bpaCredit);
 
-let federalBrackets=[
-{limit:58523,rate:0.14},{limit:117045,rate:0.205},{limit:181440,rate:0.26},
-{limit:258482,rate:0.29},{limit:99999999,rate:0.33}]
+    // 5. Provincial Tax (Simplified 2026 Brackets)
+    const provData = {
+        ON: [{l:51446, r:0.0505}, {l:102894, r:0.0915}, {l:150000, r:0.1116}, {l:Infinity, r:0.1316}],
+        BC: [{l:47450, r:0.0506}, {l:94901, r:0.077}, {l:108960, r:0.105}, {l:Infinity, r:0.147}],
+        AB: [{l:148269, r:0.10}, {l:177922, r:0.12}, {l:237230, r:0.13}, {l:Infinity, r:0.15}]
+    };
+    const provBrackets = provData[prov].map(b => ({limit: b.l, rate: b.r}));
+    const provTax = Math.max(0, calcTax(taxableIncome, provBrackets) - 800); // 800 approx prov credit
 
-let provBrackets={
-ON:[{limit:51446,rate:0.0505},{limit:102894,rate:0.0915},{limit:150000,rate:0.1116},{limit:220000,rate:0.1216},{limit:99999999,rate:0.1316}],
-BC:[{limit:45654,rate:0.0506},{limit:91310,rate:0.077},{limit:104835,rate:0.105},{limit:127299,rate:0.1229},{limit:99999999,rate:0.147}],
-AB:[{limit:148269,rate:0.10},{limit:177922,rate:0.12},{limit:237230,rate:0.13},{limit:355845,rate:0.14},{limit:99999999,rate:0.15}]
-}
+    // 6. Mandatory Premiums (CPP/EI) - The "Catch" with multi-jobs
+    const MAX_CPP = 4100; // 2026 Estimate
+    const MAX_EI = 1050;  // 2026 Estimate
+    const reqCpp = Math.min(MAX_CPP, Math.max(0, totalIncome - 3500) * 0.0595);
+    const reqEi = Math.min(MAX_EI, totalIncome * 0.0163);
+    
+    // Self-Employed CPP (Owner + Employee portions)
+    const selfCpp = Math.min(MAX_CPP, selfInc * 0.119); 
 
-let fedTax=Math.max(0,calcBrackets(taxable,federalBrackets)-1400)
-let provTax=calcBrackets(taxable,provBrackets[province])
-let cpp=Math.max(0,(totalIncome-3500)*0.0595)
-let ei=Math.min(totalIncome,68900)*0.0166
-let selfCpp=uberNet*0.119
+    // 7. Final Logic
+    const totalLiability = fedTax + provTax + reqCpp + reqEi + selfCpp;
+    const totalPayments = totalTaxPaid + totalCppPaid + totalEiPaid;
+    const balance = totalLiability - totalPayments;
 
-let totalTax=fedTax+provTax+cpp+ei+selfCpp
-let netTaxOwed=Math.max(0,totalTax-(totalTaxPaid+totalCppPaid+totalEiPaid))
+    const panel = document.getElementById('result-panel');
+    panel.style.display = 'block';
+    
+    document.getElementById('summary-content').innerHTML = `
+        <div class="res-row"><span>Total Gross Income</span><span>$${totalIncome.toFixed(2)}</span></div>
+        <div class="res-row"><span>Taxable Income</span><span>$${taxableIncome.toFixed(2)}</span></div>
+        
+        <div class="section-title">Breakdown</div>
+        <div class="res-row"><span>Federal Tax</span><span>$${fedTax.toFixed(2)}</span></div>
+        <div class="res-row"><span>Provincial Tax (${prov})</span><span>$${provTax.toFixed(2)}</span></div>
+        <div class="res-row"><span>CPP/EI Premium Req.</span><span>$${(reqCpp + reqEi).toFixed(2)}</span></div>
+        ${selfInc > 0 ? `<div class="res-row"><span>Self-Employed CPP</span><span>$${selfCpp.toFixed(2)}</span></div>` : ''}
+        
+        <div class="section-title">Payments & Credits</div>
+        <div class="res-row"><span>Total Withheld at Source</span><span>$${totalPayments.toFixed(2)}</span></div>
+        
+        <div class="res-total ${balance <= 0 ? 'refund' : 'owing'}">
+            <span>${balance <= 0 ? 'Estimated Refund' : 'Balance Owing'}</span>
+            <span>$${Math.abs(balance).toFixed(2)}</span>
+        </div>
 
-let netIncome=totalIncome-totalTax
-let monthly=netIncome/12
-let biweekly=netIncome/26
-
-document.getElementById("result").innerHTML=
-`<h2>Tax Summary</h2>
-<p>Total Income: $${totalIncome.toFixed(2)}</p>
-<p>Taxable Income: $${taxable.toFixed(2)}</p>
-<hr>
-<p>Federal Tax: $${fedTax.toFixed(2)}</p>
-<p>Provincial Tax: $${provTax.toFixed(2)}</p>
-<p>CPP: $${cpp.toFixed(2)}</p>
-<p>EI: $${ei.toFixed(2)}</p>
-<p>Self-employed CPP: $${selfCpp.toFixed(2)}</p>
-<hr>
-<h3>Total Tax: $${totalTax.toFixed(2)}</h3>
-<h3>Tax Already Paid: $${(totalTaxPaid+totalCppPaid+totalEiPaid).toFixed(2)}</h3>
-<h3>Net Tax Owed / Refund: $${netTaxOwed.toFixed(2)}</h3>
-<hr>
-<h3>Net Income After Taxes: $${netIncome.toFixed(2)}</h3>
-<p>Monthly Take-home: $${monthly.toFixed(2)}</p>
-<p>Biweekly Paycheck: $${biweekly.toFixed(2)}</p>
-<p>Recommended Uber tax reserve (28% of Uber Net): $${(uberNet*0.28).toFixed(2)}</p>`
+        <p style="font-size:0.8rem; color:#94a3b8; margin-top:20px;">
+            *This is an estimate based on 2026 projected brackets. Does not include Canada Workers Benefit or specific provincial credits like the Ontario Trillium Benefit.
+        </p>
+    `;
 }
 </script>
 </body>
