@@ -3,130 +3,184 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Canada Tax Engine 2026 | Professional Assessment</title>
+    <title>Canada Tax Engine 2026</title>
     <style>
-        :root { --bg: #0f172a; --card: #1e293b; --accent: #3b82f6; --success: #10b981; --error: #f43f5e; --text: #f1f5f9; --border: #334155; }
-        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); padding: 20px; line-height: 1.5; }
-        .wrapper { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1.2fr 1fr; gap: 20px; }
-        .card { background: var(--card); border-radius: 12px; padding: 25px; border: 1px solid var(--border); position: relative; }
-        h2 { font-size: 0.85rem; color: #94a3b8; text-transform: uppercase; border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-bottom: 15px; }
-        .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
-        label { display: block; font-size: 0.75rem; color: #cbd5e1; margin-bottom: 5px; }
-        input, select { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #475569; background: #0f172a; color: white; box-sizing: border-box; }
-        .btn { width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
-        .btn-calc { background: var(--accent); color: white; }
-        .btn-pdf { background: #475569; color: white; margin-top: 20px; display: none; }
-        .res-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
-        .total-box { margin-top: 20px; padding: 20px; border-radius: 8px; text-align: center; }
-        .refund { background: rgba(16, 185, 129, 0.1); color: var(--success); border: 1px solid var(--success); }
-        .owing { background: rgba(244, 63, 94, 0.1); color: var(--error); border: 1px solid var(--error); }
-        
-        /* PRINT STYLES - This handles the PDF look */
-        @media print {
-            body { background: white; color: black; padding: 0; }
-            .wrapper { display: block; }
-            .card:first-child, .btn, #spouseToggle { display: none !important; } /* Hide inputs on PDF */
-            .card { border: none; box-shadow: none; width: 100%; }
-            #outCard { visibility: visible !important; display: block !important; }
-            .res-row { border-bottom: 1px solid #eee; color: black; }
-            .total-box { border: 2px solid #000; color: black !important; background: #f9f9f9 !important; }
-            .badge, .est-msg { color: #666; font-style: italic; }
+        :root {
+            --bg: #0f172a; --card: #1e293b; --accent: #3b82f6;
+            --success: #10b981; --error: #ef4444; --text: #f8fafc;
         }
+        body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; line-height: 1.5; }
+        .container { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
+        header { text-align: center; margin-bottom: 40px; }
+        h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -0.025em; margin-bottom: 10px; }
+        .grid-layout { display: grid; grid-template-columns: 1.5fr 1fr; gap: 30px; }
+        .card { background: var(--card); padding: 24px; border-radius: 12px; border: 1px solid #334155; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        .section-title { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; margin: 20px 0 10px; border-bottom: 1px solid #334155; padding-bottom: 5px; }
+        .input-group { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        label { display: block; font-size: 0.85rem; margin-bottom: 5px; color: #cbd5e1; }
+        input, select { width: 100%; padding: 10px; background: #0f172a; border: 1px solid #475569; border-radius: 6px; color: white; box-sizing: border-box; }
+        input:focus { outline: 2px solid var(--accent); border-color: transparent; }
+        button { width: 100%; padding: 16px; background: var(--accent); color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s; margin-top: 20px; }
+        button:hover { background: #2563eb; transform: translateY(-1px); }
+        
+        /* Results Styling */
+        .res-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #334155; font-size: 0.95rem; }
+        .res-total { font-size: 1.25rem; font-weight: 700; margin-top: 15px; padding-top: 15px; border-top: 2px solid #475569; }
+        .refund { color: var(--success); }
+        .owing { color: var(--error); }
+        .badge { font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; background: #334155; margin-left: 5px; }
+
+        @media (max-width: 850px) { .grid-layout { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
-<div class="wrapper">
-    <div class="card">
-        <h1 style="margin:0 0 20px 0;">Tax Engine <span style="color:var(--accent)">2026</span></h1>
-        
-        <div class="input-grid">
-            <div>
-                <label>Province</label>
-                <select id="prov"><option value="ON">Ontario</option><option value="BC">BC</option><option value="AB">Alberta</option></select>
+<div class="container">
+    <header>
+        <h1>Canada Tax Engine <span style="color:var(--accent)">2026</span></h1>
+        <p>Advanced liability & refund estimator for multi-income earners</p>
+    </header>
+
+    <div class="grid-layout">
+        <div class="card">
+            <div class="input-group">
+                <div>
+                    <label>Province of Residence</label>
+                    <select id="province">
+                        <option value="ON">Ontario</option>
+                        <option value="BC">British Columbia</option>
+                        <option value="AB">Alberta</option>
+                    </select>
+                </div>
+                <div>
+                    <label>RRSP Contributions ($)</label>
+                    <input id="rrsp" type="number" placeholder="0">
+                </div>
             </div>
-            <div>
-                <label>Pay Cycle</label>
-                <select id="freq"><option value="26">Bi-Weekly</option><option value="12">Monthly</option></select>
+
+            <div id="job-container">
+                </div>
+
+            <div class="section-title">Self-Employment / Gig Work</div>
+            <div class="input-group">
+                <div><label>Gross Revenue</label><input id="uber_inc" type="number" placeholder="0"></div>
+                <div><label>Total Expenses</label><input id="uber_exp" type="number" placeholder="0"></div>
             </div>
+            
+            <button onclick="calculate()">Calculate Refund / Balance Owing</button>
         </div>
 
-        <h2>Employment & Deductions</h2>
-        <div class="input-grid">
-            <div><label>Gross Salary</label><input type="number" id="gross" placeholder="0"></div>
-            <div><label>RRSP Paid</label><input type="number" id="rrsp" placeholder="0"></div>
-            <div><label>Tax Paid (T4)</label><input type="number" id="t4_tax" placeholder="0"></div>
+        <div id="result-panel" class="card" style="display:none">
+            <h2 style="margin-top:0">Tax Summary</h2>
+            <div id="summary-content"></div>
         </div>
-
-        <button id="spouseToggle" class="btn" style="background:#334155" onclick="this.nextElementSibling.style.display='block'; hasSpouse=true;">+ Add Spouse</button>
-        <div style="display:none; margin-top:10px;" class="card">
-            <label>Spouse Net Income (2026)</label>
-            <input type="number" id="spouse_inc" value="0">
-        </div>
-
-        <button class="btn btn-calc" onclick="calculate()">Run 2026 Estimate</button>
-    </div>
-
-    <div id="outCard" class="card" style="visibility:hidden">
-        <h1 style="margin-top:0">2026 Assessment <span class="badge" style="font-size:0.7rem; background:#444; padding:3px; border-radius:4px;">ESTIMATED</span></h1>
-        <div id="resSummary"></div>
-        
-        <div id="paySection" style="margin-top:20px; padding:15px; background:#111827; border-radius:8px;">
-            <h3 style="margin:0; font-size:0.75rem; color:var(--accent)">TAKE-HOME ESTIMATE</h3>
-            <div id="payContent"></div>
-        </div>
-
-        <button id="pdfBtn" class="btn btn-pdf" onclick="window.print()">Download PDF Report</button>
-        
-        <p class="est-msg" style="font-size:0.65rem; color:#64748b; margin-top:20px;">
-            *Results are <b>estimated</b> and vary based on actual 2026 CRA indexing and specific credit eligibility.
-        </p>
     </div>
 </div>
 
 <script>
-let hasSpouse = false;
-
-function calculate() {
-    const val = id => Number(document.getElementById(id).value) || 0;
-    const pKey = document.getElementById('prov').value;
-    const f = Number(document.getElementById('freq').value);
-
-    // 2026 Projected Logic
-    const FED_BPA = 16452;
-    const totalInc = val('gross');
-    const taxableInc = Math.max(0, totalInc - val('rrsp'));
-
-    // Fed Tax (14% First Bracket Estimate)
-    let fedTax = taxableInc > 58523 ? (58523 * 0.14) + (taxableInc - 58523) * 0.205 : taxableInc * 0.14;
-    
-    // Spousal Credit
-    let spousalAmt = hasSpouse ? Math.max(0, FED_BPA - val('spouse_inc')) : 0;
-    const netFed = Math.max(0, fedTax - (FED_BPA + spousalAmt) * 0.14);
-    
-    // Prov (Flat 7% Est for simplicity)
-    const netProv = taxableInc * 0.07;
-    const annualNet = totalInc - (netFed + netProv);
-    const balance = (netFed + netProv) - val('t4_tax');
-
-    document.getElementById('outCard').style.visibility = 'visible';
-    document.getElementById('pdfBtn').style.display = 'block';
-    
-    document.getElementById('resSummary').innerHTML = `
-        <div class="res-row"><span>Total Gross</span><span>$${totalInc.toFixed(2)}</span></div>
-        <div class="res-row"><span>Taxable Income</span><span>$${taxableInc.toFixed(2)}</span></div>
-        <div class="res-row"><span>Combined Taxes</span><span>$${(netFed + netProv).toFixed(2)}</span></div>
-        <div class="total-box ${balance <= 0 ? 'refund' : 'owing'}">
-            <strong>${balance <= 0 ? 'Estimated Refund' : 'Estimated Owed'}</strong><br>
-            <span style="font-size:1.5rem">$${Math.abs(balance).toFixed(2)}</span>
+// UI Generation
+const jobContainer = document.getElementById('job-container');
+for(let i=1; i<=3; i++) {
+    jobContainer.innerHTML += `
+        <div class="section-title">T4 Employment - Job ${i}</div>
+        <div class="input-group">
+            <div><label>Income (Box 14)</label><input id="j${i}_inc" type="number" placeholder="0"></div>
+            <div><label>Income Tax (Box 22)</label><input id="j${i}_tax" type="number" placeholder="0"></div>
+        </div>
+        <div class="input-group">
+            <div><label>CPP Paid (Box 16)</label><input id="j${i}_cpp" type="number" placeholder="0"></div>
+            <div><label>EI Paid (Box 18)</label><input id="j${i}_ei" type="number" placeholder="0"></div>
         </div>
     `;
+}
 
-    document.getElementById('payContent').innerHTML = `
-        <div class="res-row" style="border:none">
-            <span>Net Take-Home Pay</span>
-            <span style="color:var(--success); font-weight:800">$${(annualNet/f).toFixed(2)}</span>
+function calcTax(taxable, brackets) {
+    let tax = 0, prevLimit = 0;
+    for (const b of brackets) {
+        if (taxable > b.limit) {
+            tax += (b.limit - prevLimit) * b.rate;
+            prevLimit = b.limit;
+        } else {
+            tax += (taxable - prevLimit) * b.rate;
+            break;
+        }
+    }
+    return tax;
+}
+
+function calculate() {
+    const val = (id) => Number(document.getElementById(id).value) || 0;
+    const prov = document.getElementById("province").value;
+
+    // 1. Income Consolidation
+    const t4Inc = val('j1_inc') + val('j2_inc') + val('j3_inc');
+    const selfInc = Math.max(0, val('uber_inc') - val('uber_exp'));
+    const totalIncome = t4Inc + selfInc;
+    
+    // 2. Deductions
+    const taxableIncome = Math.max(0, totalIncome - val('rrsp'));
+
+    // 3. Paid Amounts (Credits)
+    const totalTaxPaid = val('j1_tax') + val('j2_tax') + val('j3_tax');
+    const totalCppPaid = val('j1_cpp') + val('j2_cpp') + val('j3_cpp');
+    const totalEiPaid = val('j1_ei') + val('j2_ei') + val('j3_ei');
+
+    // 4. Federal Tax (2026 Estimates)
+    const fedBrackets = [
+        {limit: 58523, rate: 0.15}, {limit: 117045, rate: 0.205}, 
+        {limit: 181440, rate: 0.26}, {limit: 258482, rate: 0.29}, {limit: Infinity, rate: 0.33}
+    ];
+    let grossFedTax = calcTax(taxableIncome, fedBrackets);
+    const bpaCredit = 16200 * 0.15; // Estimated 2026 BPA Credit
+    const fedTax = Math.max(0, grossFedTax - bpaCredit);
+
+    // 5. Provincial Tax (Simplified 2026 Brackets)
+    const provData = {
+        ON: [{l:51446, r:0.0505}, {l:102894, r:0.0915}, {l:150000, r:0.1116}, {l:Infinity, r:0.1316}],
+        BC: [{l:47450, r:0.0506}, {l:94901, r:0.077}, {l:108960, r:0.105}, {l:Infinity, r:0.147}],
+        AB: [{l:148269, r:0.10}, {l:177922, r:0.12}, {l:237230, r:0.13}, {l:Infinity, r:0.15}]
+    };
+    const provBrackets = provData[prov].map(b => ({limit: b.l, rate: b.r}));
+    const provTax = Math.max(0, calcTax(taxableIncome, provBrackets) - 800); // 800 approx prov credit
+
+    // 6. Mandatory Premiums (CPP/EI) - The "Catch" with multi-jobs
+    const MAX_CPP = 4100; // 2026 Estimate
+    const MAX_EI = 1050;  // 2026 Estimate
+    const reqCpp = Math.min(MAX_CPP, Math.max(0, totalIncome - 3500) * 0.0595);
+    const reqEi = Math.min(MAX_EI, totalIncome * 0.0163);
+    
+    // Self-Employed CPP (Owner + Employee portions)
+    const selfCpp = Math.min(MAX_CPP, selfInc * 0.119); 
+
+    // 7. Final Logic
+    const totalLiability = fedTax + provTax + reqCpp + reqEi + selfCpp;
+    const totalPayments = totalTaxPaid + totalCppPaid + totalEiPaid;
+    const balance = totalLiability - totalPayments;
+
+    const panel = document.getElementById('result-panel');
+    panel.style.display = 'block';
+    
+    document.getElementById('summary-content').innerHTML = `
+        <div class="res-row"><span>Total Gross Income</span><span>$${totalIncome.toFixed(2)}</span></div>
+        <div class="res-row"><span>Taxable Income</span><span>$${taxableIncome.toFixed(2)}</span></div>
+        
+        <div class="section-title">Breakdown</div>
+        <div class="res-row"><span>Federal Tax</span><span>$${fedTax.toFixed(2)}</span></div>
+        <div class="res-row"><span>Provincial Tax (${prov})</span><span>$${provTax.toFixed(2)}</span></div>
+        <div class="res-row"><span>CPP/EI Premium Req.</span><span>$${(reqCpp + reqEi).toFixed(2)}</span></div>
+        ${selfInc > 0 ? `<div class="res-row"><span>Self-Employed CPP</span><span>$${selfCpp.toFixed(2)}</span></div>` : ''}
+        
+        <div class="section-title">Payments & Credits</div>
+        <div class="res-row"><span>Total Withheld at Source</span><span>$${totalPayments.toFixed(2)}</span></div>
+        
+        <div class="res-total ${balance <= 0 ? 'refund' : 'owing'}">
+            <span>${balance <= 0 ? 'Estimated Refund' : 'Balance Owing'}</span>
+            <span>$${Math.abs(balance).toFixed(2)}</span>
         </div>
+
+        <p style="font-size:0.8rem; color:#94a3b8; margin-top:20px;">
+            *This is an estimate based on 2026 projected brackets. Does not include Canada Workers Benefit or specific provincial credits like the Ontario Trillium Benefit.
+        </p>
     `;
 }
 </script>
