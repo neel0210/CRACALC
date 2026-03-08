@@ -10,6 +10,7 @@
         :root {
             --bg: #0f172a; --card: #1e293b; --accent: #3b82f6;
             --success: #10b981; --error: #ef4444; --text: #f8fafc;
+            --muted: #94a3b8;
         }
         body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; line-height: 1.5; }
         .container { max-width: 1100px; margin: 20px auto; padding: 0 15px; }
@@ -19,23 +20,24 @@
         @media (min-width: 900px) { .grid-layout { grid-template-columns: 1.5fr 1fr; } }
         
         .card { background: var(--card); padding: 20px; border-radius: 12px; border: 1px solid #334155; height: fit-content; }
-        .section-title { font-size: 0.85rem; text-transform: uppercase; color: #94a3b8; margin: 25px 0 10px; border-bottom: 1px solid #334155; padding-bottom: 5px; }
+        .section-title { font-size: 0.85rem; text-transform: uppercase; color: var(--muted); margin: 25px 0 10px; border-bottom: 1px solid #334155; padding-bottom: 5px; }
         .section-title:first-of-type { margin-top: 0; }
         
         .input-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 15px; }
-        label { display: block; font-size: 0.8rem; margin-bottom: 4px; color: #cbd5e1; }
-        input, select { width: 100%; padding: 12px; background: #0f172a; border: 1px solid #475569; border-radius: 8px; color: white; box-sizing: border-box; }
+        label { display: block; font-size: 0.75rem; margin-bottom: 4px; color: #cbd5e1; font-weight: 500; }
+        .line-tag { color: var(--accent); font-weight: 700; font-size: 0.7rem; margin-left: 4px; }
+        
+        input, select { width: 100%; padding: 12px; background: #0f172a; border: 1px solid #475569; border-radius: 8px; color: white; box-sizing: border-box; font-size: 0.9rem; }
+        input:focus { border-color: var(--accent); outline: none; }
         
         .btn-main { width: 100%; padding: 16px; background: var(--accent); color: white; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; margin-top: 20px; font-size: 1rem; }
         .btn-main:hover { background: #2563eb; }
         .btn-pdf { width: 100%; padding: 12px; background: transparent; color: white; border: 1px solid #475569; border-radius: 8px; cursor: pointer; margin-top: 15px; }
-        .btn-pdf:hover { background: #334155; }
 
         .res-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #334155; font-size: 0.95rem; }
         .res-total { font-size: 1.3rem; font-weight: 800; margin-top: 15px; padding: 15px 0; border-top: 2px solid #475569; display: flex; justify-content: space-between; }
         .refund { color: var(--success); }
         .owing { color: var(--error); }
-        .tfsa-warning { font-size: 0.75rem; color: #fbbf24; margin-top: 5px; }
     </style>
 </head>
 <body>
@@ -43,15 +45,15 @@
 <div class="container">
     <header>
         <h1>Canada Tax Engine <span style="color:var(--accent)">2026</span></h1>
-        <p>Liability estimator for up to 3 T4 Slips & Self-Employment</p>
+        <p>Liability estimator with Line Reference Tags</p>
     </header>
 
     <div class="grid-layout">
         <div class="card">
-            <div class="section-title">Global Settings</div>
+            <div class="section-title">Adjustments & Location</div>
             <div class="input-group">
                 <div>
-                    <label>Province</label>
+                    <label>Province of Residence</label>
                     <select id="province">
                         <option value="ON">Ontario</option>
                         <option value="BC">British Columbia</option>
@@ -59,26 +61,26 @@
                     </select>
                 </div>
                 <div>
-                    <label>RRSP Deductions ($)</label>
+                    <label>RRSP Deductions <span class="line-tag">[Line 20800]</span></label>
                     <input id="rrsp" type="number" placeholder="0">
                 </div>
             </div>
 
-            <div class="section-title">TFSA Contribution Tracker</div>
-            <div class="input-group">
-                <div><label>2026 Contribution</label><input id="tfsa_val" type="number" placeholder="0"></div>
-                <div><label>Unused Room Carried Over</label><input id="tfsa_carry" type="number" placeholder="0"></div>
-            </div>
-
             <div id="job-container"></div>
 
-            <div class="section-title">Self-Employment / Other</div>
+            <div class="section-title">Self-Employment & Business</div>
             <div class="input-group">
-                <div><label>Net Revenue</label><input id="self_inc" type="number" placeholder="0"></div>
+                <div><label>Net Revenue <span class="line-tag">[Line 13500]</span></label><input id="self_inc" type="number" placeholder="0"></div>
                 <div><label>Business Expenses</label><input id="self_exp" type="number" placeholder="0"></div>
             </div>
+
+            <div class="section-title">Tax-Free Savings Account</div>
+            <div class="input-group">
+                <div><label>2026 Contribution</label><input id="tfsa_val" type="number" placeholder="0"></div>
+                <div><label>Carryover Room</label><input id="tfsa_carry" type="number" placeholder="0"></div>
+            </div>
             
-            <button class="btn-main" onclick="calculate()">Calculate 2026 Liability</button>
+            <button class="btn-main" onclick="calculate()">Run 2026 Calculation</button>
         </div>
 
         <div id="result-panel" class="card" style="display:none">
@@ -86,24 +88,23 @@
                 <h2 style="margin-top:0">2026 Tax Summary</h2>
                 <div id="summary-content"></div>
             </div>
-            <button class="btn-pdf" onclick="downloadPDF()">Download as PDF</button>
+            <button class="btn-pdf" onclick="downloadPDF()">Download PDF Report</button>
         </div>
     </div>
 </div>
 
 <script>
-// Generate 3 Job Inputs
 const jobContainer = document.getElementById('job-container');
 for(let i=1; i<=3; i++) {
     jobContainer.innerHTML += `
         <div class="section-title">T4 Employment - Job ${i}</div>
         <div class="input-group">
-            <div><label>Income (Box 14)</label><input id="j${i}_inc" type="number" placeholder="0"></div>
-            <div><label>Tax Paid (Box 22)</label><input id="j${i}_tax" type="number" placeholder="0"></div>
+            <div><label>Income <span class="line-tag">[Box 14]</span></label><input id="j${i}_inc" type="number" placeholder="0"></div>
+            <div><label>Income Tax Paid <span class="line-tag">[Box 22]</span></label><input id="j${i}_tax" type="number" placeholder="0"></div>
         </div>
         <div class="input-group">
-            <div><label>CPP Paid</label><input id="j${i}_cpp" type="number" placeholder="0"></div>
-            <div><label>EI Paid</label><input id="j${i}_ei" type="number" placeholder="0"></div>
+            <div><label>CPP Paid <span class="line-tag">[Box 16]</span></label><input id="j${i}_cpp" type="number" placeholder="0"></div>
+            <div><label>EI Paid <span class="line-tag">[Box 18]</span></label><input id="j${i}_ei" type="number" placeholder="0"></div>
         </div>
     `;
 }
@@ -126,21 +127,19 @@ function calculate() {
     const val = (id) => Number(document.getElementById(id).value) || 0;
     const prov = document.getElementById("province").value;
 
-    // Summing all 3 jobs + self employment
     const totalEmploymentInc = val('j1_inc') + val('j2_inc') + val('j3_inc');
     const totalTaxPaid = val('j1_tax') + val('j2_tax') + val('j3_tax');
-    const totalPayrollDeductions = val('j1_cpp') + val('j2_cpp') + val('j3_cpp') + val('j1_ei') + val('j2_ei') + val('j3_ei');
+    const totalCPP_EI = val('j1_cpp') + val('j2_cpp') + val('j3_cpp') + val('j1_ei') + val('j2_ei') + val('j3_ei');
 
     const totalIncome = totalEmploymentInc + Math.max(0, val('self_inc') - val('self_exp'));
     const taxableIncome = Math.max(0, totalIncome - val('rrsp'));
-    
-    // Total credits/deductions already sent to CRA
-    const totalAlreadyPaid = totalTaxPaid + totalPayrollDeductions;
+    const totalAlreadyPaid = totalTaxPaid + totalCPP_EI;
 
-    // 2026 Indexed Brackets (Estimated)
+    // 2026 Brackets (Federal)
     const fedBrackets = [{limit: 58523, rate: 0.14}, {limit: 117045, rate: 0.205}, {limit: 181440, rate: 0.26}, {limit: 258482, rate: 0.29}, {limit: Infinity, rate: 0.33}];
     const fedTax = Math.max(0, calcTax(taxableIncome, fedBrackets) - (16452 * 0.14));
 
+    // Provincial Brackets
     const provTaxData = {
         ON: [{l:53891, r:0.0505}, {l:107785, r:0.0915}, {l:150000, r:0.1116}, {l:Infinity, r:0.1316}],
         BC: [{l:50363, r:0.0506}, {l:100728, r:0.077}, {l:115648, r:0.105}, {l:Infinity, r:0.147}],
@@ -148,37 +147,20 @@ function calculate() {
     };
     const provTax = Math.max(0, calcTax(taxableIncome, provTaxData[prov].map(b=>({limit:b.l, rate:b.r}))) - 900);
 
-    // TFSA Logic
-    const annualTfsaLimit = 7000;
-    const totalTfsaRoom = annualTfsaLimit + val('tfsa_carry');
-    const tfsaUsed = val('tfsa_val');
-    const tfsaRemaining = totalTfsaRoom - tfsaUsed;
-
-    // Simplified calculation for demo: Total Liability - Total Credits
-    const totalLiability = fedTax + provTax + 5500; // 5500 is a placeholder for basic CPP/EI obligations
-    const balance = totalLiability - totalAlreadyPaid;
+    const balance = (fedTax + provTax + 5500) - totalAlreadyPaid;
 
     document.getElementById('result-panel').style.display = 'block';
     document.getElementById('summary-content').innerHTML = `
-        <div class="res-row"><span>Gross Income</span><span>$${totalIncome.toLocaleString()}</span></div>
-        <div class="res-row"><span>Taxable Income</span><span>$${taxableIncome.toLocaleString()}</span></div>
-        <div class="res-row"><span>Total Deductions Paid</span><span>$${totalAlreadyPaid.toLocaleString()}</span></div>
-        
-        <div class="section-title">TFSA Status</div>
-        <div class="res-row"><span>Contribution</span><span>$${tfsaUsed.toLocaleString()}</span></div>
-        <div class="res-row"><span>Remaining Room</span><span class="${tfsaRemaining < 0 ? 'owing' : ''}">$${tfsaRemaining.toLocaleString()}</span></div>
-        ${tfsaRemaining < 0 ? '<p class="tfsa-warning">⚠ Warning: TFSA over-contribution detected.</p>' : ''}
-        
+        <div class="res-row"><span>Total Gross Income</span><span>$${totalIncome.toLocaleString()}</span></div>
+        <div class="res-row"><span>Taxable Income <span class="line-tag">[Line 26000]</span></span><span>$${taxableIncome.toLocaleString()}</span></div>
+        <div class="res-row"><span>Total Credits Paid <span class="line-tag">[Line 43700]</span></span><span>$${totalAlreadyPaid.toLocaleString()}</span></div>
         <div class="res-total ${balance <= 0 ? 'refund' : 'owing'}">
-            <span>${balance <= 0 ? 'Estimated Refund' : 'Balance Owing'}</span>
-            <span>$${Math.abs(balance).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+            <span>${balance <= 0 ? 'Tax Refund' : 'Total Tax Owing'}</span>
+            <span>$${Math.abs(balance).toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
         </div>
     `;
     
-    // Auto-scroll to results on mobile
-    if(window.innerWidth < 900) {
-        document.getElementById('result-panel').scrollIntoView({ behavior: 'smooth' });
-    }
+    if(window.innerWidth < 900) { document.getElementById('result-panel').scrollIntoView({ behavior: 'smooth' }); }
 }
 
 async function downloadPDF() {
@@ -187,12 +169,10 @@ async function downloadPDF() {
     const canvas = await html2canvas(element, { backgroundColor: '#1e293b', scale: 2 });
     const imgData = canvas.toDataURL('image/png');
     const pdf = new jsPDF();
-    const imgProps = pdf.getImageProperties(imgData);
     const pdfWidth = pdf.internal.pageSize.getWidth() - 20;
-    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-    
+    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
     pdf.addImage(imgData, 'PNG', 10, 10, pdfWidth, pdfHeight);
-    pdf.save('Tax_Estimation_2026.pdf');
+    pdf.save('Canada_Tax_Report_2026.pdf');
 }
 </script>
 </body>
